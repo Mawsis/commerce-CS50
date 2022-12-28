@@ -1,0 +1,26 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+        <div class="container-fluid">
+            <h1>{{listing.title}}</h1>
+            <h2>Category : {{listing.category.category}}</h2>
+            <p>{{listing.description}}</p>
+            {% if listing.image %}
+            <img src="{{listing.image}}" alt="photo">
+            {% endif %}
+            <h4>Starting Bid : {{listing.startingBid}}</h4>
+            <h4>Actual price : {{listing.price}}</h4>
+            {% if user.is_authenticated %}
+                <form action="{% url 'watchlist' %}" method="POST">
+                    <input type="hidden" name="user" value="{{user.username}}">
+                    <input type="hidden" name="listing" value="{{listing.title}}">
+                    {% if Not user.isInWatchlist(listing.title) %}
+                       watchlist : <input type="submit" value="Watchlist">
+                    {% endif %}
+                </form>
+            {% endif %}
+            <br><br>
+            
+        </div>    
+    
+{% endblock %}
