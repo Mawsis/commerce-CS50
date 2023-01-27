@@ -19,7 +19,7 @@ class AuctionListing(models.Model):
     title = models.CharField(max_length=64)
     description = models.CharField(max_length=300)
     startingBid = models.IntegerField()
-    image = models.ImageField(blank=True)
+    image = models.ImageField(upload_to='uploads/',blank=True)
     category = models.ForeignKey( Category , on_delete=models.CASCADE , related_name="all_items")
     price = models.IntegerField(blank=True)
     def save(self, *args, **kwargs):
@@ -37,6 +37,8 @@ class Bid(models.Model):
     bidder = models.ForeignKey(User, on_delete=models.CASCADE,related_name="bids")
     listing = models.ForeignKey(AuctionListing, on_delete=models.CASCADE,related_name="bids")
     amount = models.IntegerField()
+    def __str__(self) -> str:
+        return f'{self.bidder},bidded {self.amount} on {self.listing}'
 
 
 class Comment(models.Model):

@@ -9,13 +9,16 @@
             <h2>Category : {{listing.category.category}}</h2>
             <p>{{listing.description}}</p>
             {% if listing.image %}
-            <img src="{{listing.image}}" alt="photo">
+            <img src="{{listing.image.url}}" alt="photo">
             {% endif %}
             <h4>Starting Bid : {{listing.startingBid}}</h4>
             <h4>Actual price : {{listing.price}}</h4>
             <br><br>
             ----------------------------------------------------
-        </div>    
+        </div>  
+    {%empty%}
+    No Listings
+        
     {% endfor %}
     
 {% endblock %}

@@ -74,7 +74,7 @@ def createListing(request):
         title = request.POST['title']
         description = request.POST['description']
         startingBid = request.POST['startingBid']
-        image = request.POST['image']
+        image = request.FILES['image']
         category = request.POST['category']
         category = Category.objects.get(category=category)
         auction = AuctionListing(seller=request.user,title=title,description=description,startingBid=startingBid,image=image,category=category)
@@ -115,7 +115,12 @@ def close(request,listing_id):
         listing = AuctionListing.objects.get(pk = int(listing_id))
         bid = Bid.objects.get(amount=listing.price)
         listing.winner = bid.bidder
-        return HttpResponseRedirect(reverse("index"))       
+        bid.save()
+        listing.save()
+        return render(request, "auctions/listing.html",{
+        "listing":listing
+    })
+
 
 def comment(request,listing_id):
     if request.method =='POST':

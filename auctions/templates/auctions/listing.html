@@ -1,4 +1,5 @@
 {% extends "auctions/layout.html" %}
+{% load static %}
 
 {% block body %}
         <div class="container-fluid">
@@ -6,7 +7,7 @@
             <h2>Category : {{listing.category.category}}</h2>
             <p>{{listing.description}}</p>
             {% if listing.image %}
-            <img src="{{listing.image}}" alt="photo">
+                <img src="{{listing.image.url}}" alt="img"> 
             {% endif %}
             <h4>Starting Bid : {{listing.startingBid}}$</h4>
             <ul>
@@ -28,8 +29,9 @@
                 {% if user == listing.seller %}
                     <form action="{% url 'close' listing_id=listing.id %}" method="POST">
                         {% csrf_token %}
-                        <input type="submit" value="Close Auction">
+                        <input class="btn-danger" type="submit" value="Close Auction">
                     </form>
+                    <br><br></br>
                 {% else %}
             
                 <form action="{% url 'watchlist' listing_id=listing.id %}" method="POST">
