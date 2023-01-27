@@ -9,9 +9,15 @@ class Category(models.Model):
     def __str__(self):
         return self.category
 
+class User(AbstractUser):
+    pass
+
 class AuctionListing(models.Model):
+    watchlisted = models.ManyToManyField(User,blank=True,related_name="watchlist")
+    seller = models.ForeignKey(User,on_delete=models.CASCADE,null=True, blank=True,related_name="listings")
+    winner = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True,related_name="winnings")
     title = models.CharField(max_length=64)
-    description = models.CharField(max_length=300   )
+    description = models.CharField(max_length=300)
     startingBid = models.IntegerField()
     image = models.ImageField(blank=True)
     category = models.ForeignKey( Category , on_delete=models.CASCADE , related_name="all_items")
@@ -24,15 +30,16 @@ class AuctionListing(models.Model):
         return self.title
 
 
-class User(AbstractUser):
-    watchlist = models.ManyToManyField(AuctionListing,blank=True,related_name="watchlisted")
-    def isInWatchlist(self,title):
-        listing = AuctionListing.objects.get(title=title)
-        if listing in self.watchlist.all():
-            return True
-        else: return False
-#class Bid(models.Model):
-#    pass
 
-#class Comment(models.Model):
-#    pass
+    
+
+class Bid(models.Model):
+    bidder = models.ForeignKey(User, on_delete=models.CASCADE,related_name="bids")
+    listing = models.ForeignKey(AuctionListing, on_delete=models.CASCADE,related_name="bids")
+    amount = models.IntegerField()
+
+
+class Comment(models.Model):
+    commenter = models.ForeignKey(User, on_delete=models.CASCADE,related_name="comments")
+    commented = models.ForeignKey(AuctionListing,on_delete=models.CASCADE,related_name="comments")
+    content = models.CharField(max_length=300)

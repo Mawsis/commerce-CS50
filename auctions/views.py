@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User,Category,AuctionListing
+from .models import User,Category,AuctionListing,Bid,Comment
 
 
 def index(request):
@@ -77,7 +77,7 @@ def createListing(request):
         image = request.POST['image']
         category = request.POST['category']
         category = Category.objects.get(category=category)
-        auction = AuctionListing(title=title,description=description,startingBid=startingBid,image=image,category=category)
+        auction = AuctionListing(seller=request.user,title=title,description=description,startingBid=startingBid,image=image,category=category)
         auction.save()
         return HttpResponseRedirect(reverse("index"))
 
@@ -88,14 +88,37 @@ def listing(request,name):
         "listing":listing
     })
 
-def watchlist(request):
+def watchlist(request,listing_id):
     if request.method == "POST":
-        user = User.objects.get(request.POST['user'])
-        auctionListing =AuctionListing.objects.get(request.POST['listing'])
-        for item in user.watchlist.all():
-            if item == auctionListing:
-                user.watchlist.remove(auctionListing)
-            else:
-              user.watchlist.add(auctionListing)  
-        
-        return render(request, HttpResponseRedirect(reverse("index")))
+        user = request.user
+        listing = AuctionListing.objects.get(pk = int(listing_id))
+        if listing in user.watchlist.all():
+            user.watchlist.remove(listing)
+        else:
+            user.watchlist.add(listing)
+            user.save()
+
+        return HttpResponseRedirect(reverse("index"))
+    
+def bid(request,listing_id):
+    if request.method == 'POST':
+        amount = request.POST["amount"]
+        listing = AuctionListing.objects.get(pk = int(listing_id))
+        listing.price = amount
+        listing.save()
+        bid = Bid(bidder=request.user,listing=listing,amount=amount)
+        bid.save()
+        return HttpResponseRedirect(reverse("index"))
+    
+def close(request,listing_id):
+    if request.method == 'POST':
+        listing = AuctionListing.objects.get(pk = int(listing_id))
+        bid = Bid.objects.get(amount=listing.price)
+        listing.winner = bid.bidder
+        return HttpResponseRedirect(reverse("index"))       
+
+def comment(request,listing_id):
+    if request.method =='POST':
+        comment = Comment(commenter=request.user,commented=AuctionListing.objects.get(pk=int(listing_id)),content=request.POST["content"])
+        comment.save()
+        return HttpResponseRedirect(reverse("index"))
